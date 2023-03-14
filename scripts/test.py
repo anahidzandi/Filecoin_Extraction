@@ -43,6 +43,7 @@ def get_chain_head():
         print("Error: Request failed with status code {}".format(response.status_code))
 
 def get_blocks(cids):
+    results = []
     # Loop through each cid and call the "Filecoin.ChainGetBlock" method
     for cid in cids:
         data = {
@@ -61,13 +62,17 @@ def get_blocks(cids):
         if response.status_code == 200:
             # Extract the desired part of the JSON data
             json_data = response.json()
-            print(f"Response for CID {cid}: {json.dumps(json_data, indent=4)}\n")
+            #print(f"Response for CID {cid}: {json.dumps(json_data, indent=4)}\n")
+            results.append(json_data)
         else:
             # Handle the error if the request was not successful
-            print(f"Error: Request failed with status code {response.status_code} for CID {cid}\n")
+            print(f"Error: Request failed with status code {response.status_code} for CID {cid} with parameters {data}\n")
+    return results
 
 # Example usage
 chain_head_cids = get_chain_head()
 #print(chain_head_cids)
 
-get_blocks(chain_head_cids)
+block_info = get_blocks(chain_head_cids)
+print(json.dumps(block_info, indent=4))
+print(f"The number of blocks: {len(block_info)}")
