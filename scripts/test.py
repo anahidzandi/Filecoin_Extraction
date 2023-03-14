@@ -1,5 +1,7 @@
 import requests
 import json
+from db import get_database_connection
+
 # Set up the endpoint URL
 url = "https://filecoin.infura.io"
 # Set up the HTTP headers with authentication
@@ -30,10 +32,11 @@ def get_chain_head():
             result = json_data["result"]
 
             # Check if the "Cids" field exists in the result
-            if "Cids" in result:
+            if "Cids" in result and "Height" in result:
                 # Return the CID strings
                 cids = result["Cids"]
-                return cids
+                height = result["Height"]
+                return cids, height
             else:
                 print("Error: 'Cids' field not found in response")
         else:
@@ -41,6 +44,26 @@ def get_chain_head():
     else:
         # Handle the error if the request was not successful
         print("Error: Request failed with status code {}".format(response.status_code))
+
+def update_db_chain_head():
+    mydb = get_database_connection()
+    mycursor = mydb.cursor()
+
+    chain_head = get_chain_head()
+
+    if chain_head is not None:
+        cids, height = chain_head
+        for cid in cids:
+            cid = cid['/']
+            # print("CID:", cid)
+            # print("Height:", height)
+
+            insert_query = "INSERT INTO cid (cid, height) VALUES (%s, %s)"
+            mycursor.execute(insert_query, (str(cid), height))
+
+    mydb.commit()
+    mycursor.close()
+    mydb.close()
 
 def get_blocks(cids):
     results = []
@@ -70,9 +93,13 @@ def get_blocks(cids):
     return results
 
 # Example usage
-chain_head_cids = get_chain_head()
-#print(chain_head_cids)
 
-block_info = get_blocks(chain_head_cids)
-print(json.dumps(block_info, indent=4))
-print(f"The number of blocks: {len(block_info)}")
+# chain_head = get_chain_head()
+# print(chain_head)
+
+# update db with latest
+update_db_chain_head()
+
+# block_info = get_blocks(chain_head_cids)
+# print(json.dumps(block_info, indent=4))
+# print(f"The number of blocks: {len(block_info)}")
