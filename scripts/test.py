@@ -1,6 +1,7 @@
 import requests
 import json
 from db import get_database_connection
+import os
 
 # Set up the endpoint URL
 url = "https://filecoin.infura.io"
@@ -85,20 +86,42 @@ def get_cid_from_db():
 
 def get_blocks(cids):
     results = []
-
-    formatted_cids = [{'/': item} for item in cids]
-    # print(formatted_cids)
     
-    # Loop through each cid and call the "Filecoin.ChainGetBlock" method
-    for cid in formatted_cids:
-        data = {
-            "id": 1,
-            "jsonrpc": "2.0",
-            "method": "Filecoin.ChainGetBlock",
-            "params": [cid]
-        }
+    #check is cids is a list of cid or just a single string of cid
+    if isinstance(cids, list):
+        formatted_cids = [{'/': item} for item in cids]
+        for cid in formatted_cids:
+            data = {
+                "id": 1,
+                "jsonrpc": "2.0",
+                "method": "Filecoin.ChainGetBlock",
+                "params": [cid]
+            }
 
-        #print(f"The request sent: {data}\n")
+            # print(f"The request sent: {data}\n")
+
+            # Make the request using the requests library
+            response = requests.post(url, headers=headers, json=data)
+
+            # Check that the request was successful (status code 200)
+            if response.status_code == 200:
+                # Extract the desired part of the JSON data
+                json_data = response.json()
+                #print(f"Response for CID {cid}: {json.dumps(json_data, indent=4)}\n")
+                results.append(json_data)
+            else:
+                # Handle the error if the request was not successful
+                print(f"Error: Request failed with status code {response.status_code} for CID {cid} with parameters {data}\n")
+    elif isinstance(cids, str):
+        cid = {"/": cids}
+        data = {
+                "id": 1,
+                "jsonrpc": "2.0",
+                "method": "Filecoin.ChainGetBlock",
+                "params": [cid]
+            }
+        
+        # print(f"The request sent: {data}\n")
 
         # Make the request using the requests library
         response = requests.post(url, headers=headers, json=data)
@@ -112,18 +135,38 @@ def get_blocks(cids):
         else:
             # Handle the error if the request was not successful
             print(f"Error: Request failed with status code {response.status_code} for CID {cid} with parameters {data}\n")
+    else:
+        print("Wrong cids format")
     return results
 
+def update_db_get_blocks(cids):
+    # print(json.dumps(cids, indent=4))
+    # for each cid, get block info and add it to db
+    for cid in cids:
+        print(json.dumps(cid,indent=4))
+        # get block info for singular cid
+        block_info = get_blocks(cid)
+        print(json.dumps(block_info, indent=4))
+
+    
 # Example usage
 
 # chain_head = get_chain_head()
 # print(chain_head)
 
-# update db with latest
+# update db with latest block
 # update_db_chain_head()
 
 cids = get_cid_from_db()
-block_info = get_blocks(cids)
+# test_cid = ['bafy2bzacedr3wdiy6qfmixjoqa6wgouxif74xznhkomyfpptj3vra7ihklqug']
+# block_info = get_blocks(test_cid)
 
-print(json.dumps(block_info, indent=4))
-print(f"The number of blocks: {len(block_info)}")
+update_db_get_blocks(cids)
+
+# print(json.dumps(block_info, indent=4))
+# print(f"The number of blocks: {len(block_info)}")
+
+# file_path = os.path.join("scripts", "output.txt")
+# with open(file_path, 'w') as f:
+#     # write the formatted JSON string to the file
+#     f.write(json.dumps(block_info, indent=4))
