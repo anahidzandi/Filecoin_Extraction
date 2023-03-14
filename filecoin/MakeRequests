@@ -1,0 +1,4 @@
+curl -X POST -H "Content-Type: application/json" \
+  --user 2M6XbG6wfZSzjLecbbBLZowI5pl:9d30a202c81a9a9c7541131f2ace7e36 \
+  --url https://2M6XbG6wfZSzjLecbbBLZowI5pl:9d30a202c81a9a9c7541131f2ace7e36@filecoin.infura.io \
+  --data '{ "id": 0, "jsonrpc": "2.0", "method": "Filecoin.ChainHead", "params": [] }'

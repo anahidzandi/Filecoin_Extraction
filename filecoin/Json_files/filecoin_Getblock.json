@@ -1,0 +1,68 @@
+HTTP/1.1 200 OK
+Date: Wed,
+22 Feb 2023 18: 58: 56 GMT
+Content-Type: text/plain; charset=utf-8
+Content-Length: 1299
+Connection: close
+Content-Encoding: gzip
+Vary: Origin, Accept-Encoding
+
+{
+    "jsonrpc": "2.0",
+    "result": {
+        "Miner": "f0107916",
+        "Ticket": {
+            "VRFProof": "oRukk2DHJJKz4mMKZDc34n/Cqb72V4NXO7lAUk+DjQ3cl8s3HLPjzt62CnIsAPcjF0IxLlXinrg4S/nVFKRDBon6NolX0dmIdoFj5qv5my4UP8C1e1YoxRhTqUDe9aTJ"
+        },
+        "ElectionProof": {
+            "WinCount": 1,
+            "VRFProof": "pxAb0r9J5KJ4GVkAdUZ2CtUlOffW1XuSlhORSttcXeBYAy+SxxxGEYs8Of7uVR76CQgQwRNXPkd+XAk3S7Fp6fN4XEh/xqODk06qtAoh19EJQFWX+q9xli+BwMu4a4FB"
+        },
+        "BeaconEntries": [
+            {
+                "Round": 2722021,
+                "Data": "kE0iXPC8bjb9/lyp7emJqm/D0XAsikMdoJ1fl3FospzzpX+yH94jTZ4nj21ZTOGqDtxnUtxfp0Vt7/IAlVP5cs+zTYCe5k4+HFUiv/LmPZKpln517L2dZSorXiqVPDZD"
+            }
+        ],
+        "WinPoStProof": [
+            {
+                "PoStProof": 3,
+                "ProofBytes": "tS3BfBu06vipSiy+MgvAu/HPHKgfBzLhZwji0SQjpjGZmTdn2WU5agn+mRxIasSTjWKBeiZeIuM0l19jyllpt+oSK1PaFgPmrzurTafBkDfeC6QjUTD6bvHJ/OpL7iVfBGWx8LG640TWoNHePZFpVKXIcrWYSb+RNoYLR5qH43wNyWY/fDiUYGkKzqs/sBBpqSuvshk7q9MkCJBLqFfVIqBmoKUvzV96G6Pe/qNv02qSbZ+ICrsmDun5d7nbIZey"
+            }
+        ],
+        "Parents": [
+            {
+                "/": "bafy2bzacebcjfjvtakrs24t7luesfm7n2gze6n2lqmhdueb6ygigg7wlihwqe"
+            },
+            {
+                "/": "bafy2bzaceajeeg47bhmvigiggnnkux7akaih3awi2n3mqjeoyq3ew2dki6ohe"
+            },
+            {
+                "/": "bafy2bzacebepjwdj374sffjdqxea2ndfuwhkmq2eauym6zep7vetmggmmvtrs"
+            }
+        ],
+        "ParentWeight": "61811002776",
+        "Height": 2626176,
+        "ParentStateRoot": {
+            "/": "bafy2bzaced77d2yjt7apm53oytubp3syagsuv43m4wmhsowj2utnqapl35tfq"
+        },
+        "ParentMessageReceipts": {
+            "/": "bafy2bzaceaopljhyhrfyuox2yrvm5emov47lwvuai6wumfig54wzybd2l56ci"
+        },
+        "Messages": {
+            "/": "bafy2bzacedbjzabrvfxncezburiqhae4gcljmafifvj2g7mtvaczza2hbc6jw"
+        },
+        "BLSAggregate": {
+            "Type": 2,
+            "Data": "rte1x2ryYAjMASbMw5BlysRBNBnS9+5ZWZnmo/J2IqteIrv0gaZyWqgWu63xueuuB5MXMNV0Pyys8S5v1eC9xKnsRqhm88icGzDJREBCk6Z9iEKtb0OcJzfO4JYehCwW"
+        },
+        "Timestamp": 1677091680,
+        "BlockSig": {
+            "Type": 2,
+            "Data": "gCVWAKzBH+NQbYuaj4q5WcW0dY9KuIBKG0YEwdEmQASbJZ/h+Ggi3MTxsIa+OJekCnLlbOHkUyWPVoMu5FQM+npnn/R2nUbRwML2NmdtlW0PnCDxhu9YPXY3l7/tw5kh"
+        },
+        "ForkSignaling": 0,
+        "ParentBaseFee": "178686947"
+    },
+    "id": 0
+}
