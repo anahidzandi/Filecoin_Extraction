@@ -141,12 +141,32 @@ def get_blocks(cids):
 
 def update_db_get_blocks(cids):
     # print(json.dumps(cids, indent=4))
+    mydb = get_database_connection()
+    mycursor = mydb.cursor()
+
     # for each cid, get block info and add it to db
     for cid in cids:
-        print(json.dumps(cid,indent=4))
+        # print(json.dumps(cid,indent=4))
         # get block info for singular cid
         block_info = get_blocks(cid)
-        print(json.dumps(block_info, indent=4))
+
+        # print(json.dumps(block_info, indent=4))
+
+        # Access the value of "Miner"
+        miner = block_info[0]['result']['Miner']
+
+        # Print the value of miner
+        # print(miner)
+
+        #upload cid and miner into db
+        insert_query = "INSERT INTO cid_info (cid, miner) VALUES (%s, %s)"
+        mycursor.execute(insert_query, (str(cid), miner))
+
+        #next step: get the cid of parents, for each parent instert cid,miner and parent
+    mydb.commit()
+    mycursor.close()
+    mydb.close()
+        
 
     
 # Example usage
@@ -155,7 +175,7 @@ def update_db_get_blocks(cids):
 # print(chain_head)
 
 # update db with latest block
-# update_db_chain_head()
+update_db_chain_head()
 
 cids = get_cid_from_db()
 # test_cid = ['bafy2bzacedr3wdiy6qfmixjoqa6wgouxif74xznhkomyfpptj3vra7ihklqug']
