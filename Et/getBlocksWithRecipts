@@ -1,4 +1,0 @@
-curl https://distinguished-tiniest-wind.quiknode.pro/35c0646e14b1ffb91fbc2dbaddc9fa931cc7ffcf/
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"qn_getBlockWithReceipts","params":["0xF7D1EC"],"id":1,"jsonrpc":"2.0"}'

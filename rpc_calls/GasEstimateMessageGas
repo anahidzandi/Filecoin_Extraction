@@ -1,0 +1,11 @@
+  curl -X POST -H "Content-Type: application/json" \
+  --user 2M6XbG6wfZSzjLecbbBLZowI5pl:9d30a202c81a9a9c7541131f2ace7e36 \
+  --url https://2M6XbG6wfZSzjLecbbBLZowI5pl:9d30a202c81a9a9c7541131f2ace7e36@filecoin.infura.io \
+  --data '{ "id": 0, "jsonrpc": "2.0", "method": "Filecoin.GasEstimateMessageGas", "params": [{
+	"To": "f1yqh7rqkwadnx4foph43c4kfeh3z5ug354qc2umy",
+	"From": "f1yqh7rqkwadnx4foph43c4kfeh3z5ug354qc2umy",
+	"Nonce": 0,
+	"Value": "48841082302129422",
+	"Method": 0,
+	"Params": []
+}, {"MaxFee": "0"}, null] }'

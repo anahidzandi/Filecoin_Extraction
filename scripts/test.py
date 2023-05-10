@@ -11,6 +11,8 @@ headers = {
         "Authorization": "Basic Mk02WGJHNndmWlN6akxlY2JiQkxab3dJNXBsOjlkMzBhMjAyYzgxYTlhOWM3NTQxMTMxZjJhY2U3ZTM2"
     }
 
+# Gets the cids and height of the lastest block validated and 
+# returns a tuple containting a list of cid and the height
 def get_chain_head():
     # Set up the  data payload
     data = {
@@ -39,33 +41,42 @@ def get_chain_head():
                 height = result["Height"]
                 return cids, height
             else:
-                print("Error: 'Cids' field not found in response")
+                print("Error: fields not found in response")
         else:
             print("Error: 'result' field not found in response")
     else:
         # Handle the error if the request was not successful
         print("Error: Request failed with status code {}".format(response.status_code))
 
+# Connects to db, calls get_chain_head() and inserts the returned tuple into db
+# Connects to the database and inserts the latest chain head data into the "cid" table
 def update_db_chain_head():
     mydb = get_database_connection()
     mycursor = mydb.cursor()
 
+    # Call the get_chain_head() function to retrieve the latest chain head data
     chain_head = get_chain_head()
 
+    # If the chain head data was successfully retrieved
     if chain_head is not None:
+        # Unpack the chain head data into separate variables
         cids, height = chain_head
+
+        # For each CID in the list of CIDs
         for cid in cids:
+            # Extract the CID string from the dictionary format
             cid = cid['/']
-            # print("CID:", cid)
-            # print("Height:", height)
 
+            # Define an SQL query to insert the CID and height data into the "cid" table
             insert_query = "INSERT INTO cid (cid, height) VALUES (%s, %s)"
-            mycursor.execute(insert_query, (str(cid), height))
 
+            # Execute the insert query with the CID and height values as parameters
+            mycursor.execute(insert_query, (str(cid), height))
     mydb.commit()
     mycursor.close()
     mydb.close()
 
+# Connects to db, gets all cids from cid table and returns a list
 def get_cid_from_db():
     mydb = get_database_connection()
     mycursor = mydb.cursor()
@@ -79,26 +90,26 @@ def get_cid_from_db():
     # Convert the rows to a list
     cids = [row[0] for row in rows]
 
-    # Print the resulting list
-    # print(cids)
-
     return cids
 
+# Gets a list of cids or a single string of cid and resturns a list of
+# varius information about each cid block
 def get_blocks(cids):
     results = []
     
     #check is cids is a list of cid or just a single string of cid
     if isinstance(cids, list):
+        # format the cids list so it can be inserted correctly into
+        # the data payload
         formatted_cids = [{'/': item} for item in cids]
         for cid in formatted_cids:
+            # Set up the  data payload
             data = {
                 "id": 1,
                 "jsonrpc": "2.0",
                 "method": "Filecoin.ChainGetBlock",
                 "params": [cid]
             }
-
-            # print(f"The request sent: {data}\n")
 
             # Make the request using the requests library
             response = requests.post(url, headers=headers, json=data)
@@ -113,15 +124,16 @@ def get_blocks(cids):
                 # Handle the error if the request was not successful
                 print(f"Error: Request failed with status code {response.status_code} for CID {cid} with parameters {data}\n")
     elif isinstance(cids, str):
+        # format the cids string so it can be inserted correctly into
+        # the data payload
         cid = {"/": cids}
+        # Set up the  data payload
         data = {
                 "id": 1,
                 "jsonrpc": "2.0",
                 "method": "Filecoin.ChainGetBlock",
                 "params": [cid]
             }
-        
-        # print(f"The request sent: {data}\n")
 
         # Make the request using the requests library
         response = requests.post(url, headers=headers, json=data)
@@ -139,54 +151,69 @@ def get_blocks(cids):
         print("Wrong cids format")
     return results
 
+# for each cid, calls get_blocks and inserts various information
+# if a block has multiple parents, muliple rows are inserted for the block cid
 def update_db_get_blocks(cids):
-    # print(json.dumps(cids, indent=4))
     mydb = get_database_connection()
     mycursor = mydb.cursor()
 
     # for each cid, get block info and add it to db
     for cid in cids:
-        # print(json.dumps(cid,indent=4))
         # get block info for singular cid
         block_info = get_blocks(cid)
 
-        # print(json.dumps(block_info, indent=4))
-
-        # Access the value of "Miner"
+        # Access the values
         miner = block_info[0]['result']['Miner']
+        height = block_info[0]['result']['Height']
 
-        # Print the value of miner
-        # print(miner)
+        messages = block_info[0]['result']['Messages']
+        messages = messages['/']
+        # TODO: check see if a block can have multiple messages
 
-        #upload cid and miner into db
-        insert_query = "INSERT INTO cid_info (cid, miner) VALUES (%s, %s)"
-        mycursor.execute(insert_query, (str(cid), miner))
+        #get a list of all parents in the block
+        parents = block_info[0]['result']['Parents']
+        parent_values = []
+        for parent in parents:
+            value = parent['/']
+            parent_values.append(value)
 
-        #next step: get the cid of parents, for each parent instert cid,miner and parent
+        # Insert the values into cid_info table
+        insert_query = "INSERT INTO cid_info (cid, miner, height, messages, parent) VALUES (%s, %s, %s, %s, %s)"
+        for parent_value in parent_values:
+            data = (cid, miner, height, messages, parent_value)
+            mycursor.execute(insert_query, data)
+            # TODO: update the cid rows that have missing column values, 
+            # right now we just insert so existing cids don't get updated
     mydb.commit()
     mycursor.close()
     mydb.close()
-        
 
-    
-# Example usage
+def traverse(cid,n):
+    for i in range(0, n):
+        # get info about current block
+        block = get_blocks(cid)
+        print(f"Response for CID {cid}: {json.dumps(block, indent=4)}\n")
 
-# chain_head = get_chain_head()
-# print(chain_head)
+        # get first parent
+        parents = block[0]['result']['Parents']
+        parent_cid = parents[0]['/']
+
+        # update cid with parent cid for next iteration
+        cid = parent_cid
+
+
+
+
 
 # update db with latest block
-update_db_chain_head()
+# update_db_chain_head()
 
-cids = get_cid_from_db()
-# test_cid = ['bafy2bzacedr3wdiy6qfmixjoqa6wgouxif74xznhkomyfpptj3vra7ihklqug']
-# block_info = get_blocks(test_cid)
+# get a list of all cids in cid table
+# cids = get_cid_from_db()
 
-update_db_get_blocks(cids)
+# insert block info for all cids in cid table into cid_info table
+# update_db_get_blocks(cids)
 
-# print(json.dumps(block_info, indent=4))
-# print(f"The number of blocks: {len(block_info)}")
-
-# file_path = os.path.join("scripts", "output.txt")
-# with open(file_path, 'w') as f:
-#     # write the formatted JSON string to the file
-#     f.write(json.dumps(block_info, indent=4))
+# traversing example
+starting_cid = ['bafy2bzacea6wz43k7rgsq73ywqh42odimhprllm6u43v7jofq42z7ncokpqzc']
+traverse(starting_cid,5)

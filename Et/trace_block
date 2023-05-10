@@ -1,4 +1,0 @@
-curl https://distinguished-tiniest-wind.quiknode.pro/35c0646e14b1ffb91fbc2dbaddc9fa931cc7ffcf/
-  -X POST \
-  -H "Content-Type: application/json" \
-  --data '{"method":"trace_block","params":["0xccb93d"],"id":1,"jsonrpc":"2.0"}'
